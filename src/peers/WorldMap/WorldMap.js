@@ -151,6 +151,28 @@ const MapPins = connect('selectPeersCoordinates', ({ width, height, path, peersC
     .attr('viewBox', `0 0 ${width} ${height}`)
 
   peersCoordinates.forEach(({ peerIds, coordinates }) => {
+    /* TODO: JSFIX could not patch the breaking change:
+    Remove d3.event and changed the interface for the listeners parsed to .on() methods 
+    Suggested fix: 
+    This is only breaking if the second argument to .on() is being parsed the “index” (i) and “elements” (e) as arguments. 
+    The signature of the listeners have been changed to now only take the event object and the “datum” (d) (which it already did).
+    To get the existing “index” and “elements” functionality you can inside the listener use
+        const selection = event.selection;
+        const e = selection.nodes();
+        const i = e.indexOf(this);
+    For further details see the official migration guide here: https://observablehq.com/@d3/d3v6-migration-guide#events. 
+     */
+    /* TODO: JSFIX could not patch the breaking change:
+    Remove d3.event and changed the interface for the listeners parsed to .on() methods 
+    Suggested fix: 
+    This is only breaking if the second argument to .on() is being parsed the “index” (i) and “elements” (e) as arguments. 
+    The signature of the listeners have been changed to now only take the event object and the “datum” (d) (which it already did).
+    To get the existing “index” and “elements” functionality you can inside the listener use
+        const selection = event.selection;
+        const e = selection.nodes();
+        const i = e.indexOf(this);
+    For further details see the official migration guide here: https://observablehq.com/@d3/d3v6-migration-guide#events. 
+     */
     el.append('path')
       .datum({
         type: 'Point',
@@ -159,7 +181,17 @@ const MapPins = connect('selectPeersCoordinates', ({ width, height, path, peersC
       .attr('d', path.pointRadius(() => getDotsSize(peerIds.length)))
       .attr('fill', () => getDotsColor(peerIds.length))
       .attr('class', 'mapDot')
-      .on('mouseenter', () => handleMouseEnter(peerIds, d3.event.relatedTarget))
+      .on(
+      'mouseenter',
+      () => handleMouseEnter(peerIds, /* TODO: JSFIX could not patch the breaking change:
+      Remove d3.event and changed the interface for the listeners parsed to .on() methods 
+      Suggested fix: If this reading of the d3.event property is inside an event listener, you can change `d3.event` to just be `event` and then parse the event object as the new first argument to the event listener. See the example: https://observablehq.com/@d3/d3v6-migration-guide#cell-427. 
+      If you are reading d3.event outside of an event listener, there is no “good/clean” alternative.
+      Our suggestion is to have your own variable containing the last event, which is then set inside the different event listener, from which you are trying to get the event using d3.event.
+      So an event listener on a drag object could look something like:
+          drag().on("start", (event, d) => lastEvent = event; … ) */
+      d3.event.relatedTarget)
+    )
       .on('mouseleave', () => handleMouseLeave())
   })
 
